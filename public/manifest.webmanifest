@@ -1,0 +1,11 @@
+{
+  "name": "Chinese Mission Việt",
+  "short_name": "CM Việt",
+  "description": "Học giao tiếp tiếng Trung theo tình huống bằng tiếng Việt",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f1fff8",
+  "theme_color": "#dcfce9",
+  "lang": "vi",
+  "icons": [{"src":"/favicon.ico","sizes":"any","type":"image/x-icon"}]
+}
