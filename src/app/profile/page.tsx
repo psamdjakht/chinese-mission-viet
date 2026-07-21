@@ -7,6 +7,9 @@ import { getScenarioNameVi } from "@/lib/i18n/vi";
 import { useLearningSettings } from "@/lib/settings";
 import { collectLocalData, downloadBackup, getStudyStreak, restoreLocalData, type BackupPayload } from "@/lib/storage";
 import { getActiveSlot, getActiveSlotId, getSlotItem, resetLearnerSlot, saveLearnerSlotName } from "@/lib/slots";
+import { getSrsStats } from "@/lib/srs";
+import { getGroupTestResults } from "@/lib/group-test-progress";
+import { getCompletedKnowledgeIds } from "@/lib/knowledge-progress";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -14,6 +17,9 @@ export default function ProfilePage() {
   const [done, setDone] = useState<string[]>([]);
   const [phraseCount, setPhraseCount] = useState(0);
   const [slotName, setSlotName] = useState("");
+  const [reviewDue, setReviewDue] = useState(0);
+  const [passedTests, setPassedTests] = useState(0);
+  const [knowledgeDone, setKnowledgeDone] = useState(0);
   const file = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -26,6 +32,9 @@ export default function ProfilePage() {
     try {
       setDone(JSON.parse(getSlotItem("chinese-mission-completed") || "[]"));
       setPhraseCount(JSON.parse(getSlotItem("chinese-mission-phrasebook") || "[]").length);
+      setReviewDue(getSrsStats().due);
+      setPassedTests(Object.values(getGroupTestResults()).filter((result) => result.passed).length);
+      setKnowledgeDone(getCompletedKnowledgeIds().length);
     } catch {}
   }, [router]);
 
@@ -72,13 +81,14 @@ export default function ProfilePage() {
           <div className="mt-3 flex gap-2"><input value={slotName} onChange={(event) => setSlotName(event.target.value)} maxLength={40} className="min-w-0 flex-1 rounded-xl border border-green-200 px-4 py-3 font-semibold outline-none focus:ring-2 focus:ring-green-400" /><button onClick={rename} className="rounded-xl bg-green-100 px-4 text-sm font-semibold text-green-800">Đổi tên</button></div>
         </section>
         <section className="grid grid-cols-3 gap-3"><Stat n={`${done.length}/${total}`} t="Bài hoàn thành" /><Stat n={String(phraseCount)} t="Câu đã lưu" /><Stat n={`${getStudyStreak()} ngày`} t="Chuỗi học" /></section>
+        <section className="grid gap-3 sm:grid-cols-3"><Link href="/review" className="app-card p-4"><div className="font-semibold text-rose-800">🧠 Ôn lặp</div><div className="mt-1 text-xs text-slate-500">{reviewDue} thẻ đến hạn</div></Link><Link href="/tests" className="app-card p-4"><div className="font-semibold text-sky-800">📝 Kiểm tra nhóm</div><div className="mt-1 text-xs text-slate-500">{passedTests}/15 nhóm đã đạt</div></Link><Link href="/knowledge" className="app-card p-4"><div className="font-semibold text-violet-800">📚 Chuyên đề mới</div><div className="mt-1 text-xs text-slate-500">{knowledgeDone}/5 đã học</div></Link></section>
         <section className="app-card p-5">
           <h2 className="font-bold text-green-950">Cách hiển thị bài học</h2>
           <div className="mt-4 space-y-3">
             <Toggle label="Hiện pinyin" checked={settings.showPinyin} onChange={(value) => updateSettings({ showPinyin: value })} />
             <Toggle label="Hiện nghĩa tiếng Việt" checked={settings.showTranslation} onChange={(value) => updateSettings({ showTranslation: value })} />
             <Toggle label="Tách nghĩa từng cụm" checked={settings.showWordGloss} onChange={(value) => updateSettings({ showWordGloss: value })} />
-            <Toggle label="Hiện thêm bản dịch tiếng Bạn" checked={settings.showEnglish} onChange={(value) => updateSettings({ showEnglish: value })} />
+            <Toggle label="Hiện thêm bản dịch tiếng Anh" checked={settings.showEnglish} onChange={(value) => updateSettings({ showEnglish: value })} />
             <Toggle label="Tự đọc câu của nhân vật" checked={settings.autoplayVoice} onChange={(value) => updateSettings({ autoplayVoice: value })} />
             <label className="block text-sm text-slate-700">Tốc độ đọc: {settings.speechRate.toFixed(2)}×<input type="range" min="0.55" max="1.15" step="0.05" value={settings.speechRate} onChange={(event) => updateSettings({ speechRate: Number(event.target.value) })} className="mt-2 w-full accent-green-600" /></label>
             <label className="block text-sm text-slate-700">Số lần lặp câu mẫu<select value={settings.repeatCount} onChange={(event) => updateSettings({ repeatCount: Number(event.target.value) })} className="mt-2 w-full rounded-xl border border-green-200 bg-white px-3 py-2">{[1, 2, 3, 4, 5].map((number) => <option key={number} value={number}>{number} lần</option>)}</select></label>

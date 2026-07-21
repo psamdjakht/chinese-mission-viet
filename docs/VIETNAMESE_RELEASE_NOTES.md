@@ -36,3 +36,26 @@ Giữ nguyên năng lực của Chinese Mission và bổ sung một lớp học 
 - Hiển thị lỗi micro bằng tiếng Việt và hướng dẫn dùng Chrome/Edge khi trình duyệt không hỗ trợ.
 - Thêm CloudSyncProvider: sau khi đăng nhập Supabase bằng liên kết email một lần, dữ liệu cả 10 slot tự lưu sau mỗi thay đổi và tự khôi phục bản mới hơn khi mở lại.
 - Cơ chế đồng bộ dùng mốc thời gian và ưu tiên bản mới hơn; vẫn giữ nút Lưu ngay/Khôi phục thủ công.
+
+## Phiên bản 2.3.0 — Chuẩn hóa chất lượng bài học
+
+- Giữ nguyên 50 nhiệm vụ, hội thoại, giọng nói, 10 slot và đồng bộ Supabase.
+- Bổ sung 15 bộ kiến thức chuyên sâu tương ứng 15 nhóm tình huống.
+- Thêm hơn 120 từ/cụm từ trọng tâm có chữ Hán, pinyin, nghĩa Việt và nút nghe.
+- Thêm 60 khung câu tái sử dụng kèm giải thích cách dùng.
+- Thêm 15 hội thoại mẫu hoàn chỉnh, tổng cộng 90 lượt thoại.
+- Thêm 45 lưu ý về phép lịch sự, văn hóa và cách dùng thực tế.
+- Thêm 45 lỗi người Việt dễ mắc với ví dụ sai, câu đúng và giải thích.
+- Thêm 45 trọng điểm phát âm, biến điệu và phân biệt âm dễ nhầm.
+- Thêm thử thách riêng cho đủ 50 bài để buộc người học mở rộng ngoài câu mẫu.
+- Thêm danh sách tự kiểm tra trước khi bắt đầu hội thoại.
+- Giao diện kiến thức mở rộng dùng khối thu gọn để không làm bài học quá dài trên điện thoại.
+
+## Phiên bản 2.4 — Ôn lặp ngắt quãng và kiểm tra theo nhóm
+- Giữ nguyên toàn bộ 15 bộ kiến thức tình huống của phiên bản 2.3.
+- Thêm 5 chuyên đề mới độc lập, nâng tổng số bộ kiến thức lên 20.
+- Thêm hệ thống SRS theo từng slot với bốn mức tự đánh giá: Quên, Khó, Nhớ, Rất chắc.
+- Thêm 15 bài kiểm tra tổng hợp, mỗi bài 10 câu được sinh trực tiếp từ đúng bộ kiến thức của nhóm.
+- Lưu lịch ôn, kết quả kiểm tra và chuyên đề đã học vào cùng hệ thống sao lưu Supabase.
+- Toàn bộ lời hướng dẫn trực tiếp với người học sử dụng cách xưng hô “Bạn”.
+

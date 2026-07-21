@@ -909,7 +909,7 @@ export function generateDebrief(
   if (pinyinTurns.length > totalTurns * 0.5) {
     topFixes.push({
       type: "script",
-      before: "Chủ yếu dùng pinyin, tiếng Bạn hoặc tiếng Việt",
+      before: "Chủ yếu dùng pinyin, tiếng Anh hoặc tiếng Việt",
       after: "Thử chuyển dần sang chữ Hán khi đã nhớ câu",
       reason:
         "Nhận diện chữ Hán giúp tăng khả năng đọc và hiểu trong tình huống thực tế",

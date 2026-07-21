@@ -1,4 +1,4 @@
-# Chinese Mission Việt 2.0
+# Chinese Mission Việt 2.4
 
 Ứng dụng mã nguồn mở luyện giao tiếp tiếng Trung theo nhiệm vụ thực tế, được phát triển từ Chinese Mission. Bản này giữ nguyên các luồng cũ và chuyển ngôn ngữ hướng dẫn mặc định sang tiếng Việt, đồng thời đổi giao diện sang tone xanh lá pastel.
 
@@ -129,3 +129,19 @@ npx cap sync ios
 5. Không dùng `service_role` key trong Vercel hoặc mã phía trình duyệt.
 
 Nhận giọng nói trên web hoạt động tốt nhất bằng Chrome hoặc Edge qua HTTPS. Bấm micro một lần để bắt đầu, nói tiếng Trung, rồi bấm lại để kết thúc. Câu nhận dạng sẽ điền vào ô nhập để kiểm tra trước khi bấm Gửi.
+
+## Chuẩn hóa chất lượng bài học (2.3)
+- 15 bộ kiến thức chuyên sâu bao phủ toàn bộ 50 bài.
+- Hơn 120 từ/cụm từ trọng tâm có pinyin, nghĩa Việt và nút phát âm.
+- 60 khung câu tái sử dụng, 90 lượt hội thoại mẫu và thử thách riêng cho từng bài.
+- Lưu ý về cách dùng thực tế, phép lịch sự, lỗi người Việt thường mắc và trọng điểm phát âm.
+- Các phần mở rộng được bố trí dạng thu gọn, phù hợp học trên điện thoại.
+- Cập nhật 2.3 không thay đổi cấu trúc Supabase; không cần chạy lại SQL nếu phiên bản 2.2 đã đồng bộ thành công.
+## Ôn lặp ngắt quãng, kiểm tra nhóm và 5 chuyên đề mới (2.4)
+- Thêm hệ thống ôn lặp ngắt quãng theo từng slot tại `/review`; thẻ quên quay lại sớm, thẻ nhớ tốt được giãn lịch dần.
+- Tạo hơn 300 thẻ từ 15 bộ kiến thức cũ và 5 chuyên đề mới; không sửa nội dung của các bộ kiến thức cũ.
+- Thêm 15 bài kiểm tra tổng hợp tại `/tests`, mỗi nhóm 10 câu bám sát từ vựng, khung câu, lỗi thường gặp, hội thoại, phép lịch sự và phát âm.
+- Kết quả kiểm tra lưu theo slot, ghi nhận số lần làm, điểm gần nhất, điểm tốt nhất và trạng thái đạt từ 80%.
+- Bổ sung 5 chuyên đề độc lập tại `/knowledge`: thanh điệu và biến điệu; số lượng và lượng từ; 了/过/在; nối ý; xử lý khi không nghe kịp.
+- Lịch ôn, kết quả kiểm tra và trạng thái chuyên đề dùng các khóa `localStorage` theo slot, vì vậy được tự động đưa vào bản sao Supabase hiện có; không cần chạy lại SQL.
+
