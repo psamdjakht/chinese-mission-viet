@@ -104,3 +104,19 @@ npx cap sync ios
 - Sao lưu JSON có thể chứa lịch sử học; nên lưu tại nơi riêng tư.
 - Supabase chỉ lưu một payload sao lưu của người dùng đã đăng nhập.
 - AI API nhận nội dung hội thoại để sinh phản hồi; cần xem chính sách dữ liệu của nhà cung cấp API đang dùng.
+
+## Phiên bản 2.1: 50 bài và 10 slot người học
+- 50 nhiệm vụ giao tiếp thuộc 15 nhóm tình huống thực tế.
+- Giao diện và nội dung hướng dẫn dùng cách xưng hô “Bạn”.
+- 10 slot học không cần tài khoản hoặc mật khẩu.
+- Mỗi slot lưu độc lập: mục tiêu, bài hoàn thành, sổ câu, cài đặt, chuỗi học, lượt học và phiên hội thoại.
+- Có thể đổi tên, chuyển người học hoặc đặt lại riêng từng slot tại `/slots`.
+- Dữ liệu phiên bản cũ được tự chuyển vào Slot 1 khi mở lần đầu.
+- Supabase là tùy chọn; nếu bật thì bản sao chứa dữ liệu của cả 10 slot.
+
+### Cập nhật repository đang chạy bằng GitHub Desktop
+1. Sao lưu repository hiện tại hoặc tạo một nhánh mới.
+2. Giải nén bản cập nhật vào đúng thư mục repository, cho phép ghi đè tệp cũ.
+3. Không đưa `node_modules` hoặc `.next` lên GitHub.
+4. Mở GitHub Desktop, kiểm tra danh sách thay đổi, ghi commit `Nâng cấp 2.1 - 50 bài và 10 slot` rồi bấm **Push origin**.
+5. Vercel sẽ tự triển khai commit mới. Nếu không tự chạy, chọn **Redeploy** và bỏ dùng build cache cũ.

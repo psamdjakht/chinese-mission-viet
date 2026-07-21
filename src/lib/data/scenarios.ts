@@ -1,4 +1,5 @@
 import type { Scenario, Mission } from "../types";
+import { extraScenarios } from "./extra-scenarios";
 
 // ---------------------------------------------------------------------------
 // Scenario 1 — 咖啡店/餐厅 (Cafe & Restaurant) — survival — 4 missions
@@ -1849,6 +1850,7 @@ export const scenarios: Scenario[] = [
     icon: "💼",
     missions: workBasicsMissions,
   },
+  ...extraScenarios,
 ];
 
 // ---------------------------------------------------------------------------

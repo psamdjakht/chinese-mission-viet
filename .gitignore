@@ -1,0 +1,56 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# next.js
+.next/
+out/
+
+# production
+build/
+dist/
+
+# env files
+.env
+.env.local
+.env.*.local
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# testing
+coverage/
+
+# turbo
+.turbo
+
+# lock files
+bun.lock
+
+# misc
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# omc / gstack
+.omc/
+.gstack/
+.vercel
+
+# capacitor www build output (served via server.url in production)
+www/
+
+# Codex governance: local secrets and machine state
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.p12
+*.pfx
+id_rsa
+id_dsa
+.codex/
+.claude/local/

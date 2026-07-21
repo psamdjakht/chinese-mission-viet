@@ -1,3 +1,5 @@
+import { getSlotItem, setSlotItem } from "@/lib/slots";
+
 /**
  * Free-tier entitlements & quota tracking.
  *
@@ -25,7 +27,7 @@ function todayUtc(): string {
 function readQuota(): DailyQuota {
   if (typeof window === "undefined") return { date: todayUtc(), attemptsUsed: 0 };
   try {
-    const raw = localStorage.getItem(QUOTA_KEY);
+    const raw = getSlotItem(QUOTA_KEY);
     if (!raw) return { date: todayUtc(), attemptsUsed: 0 };
     const parsed = JSON.parse(raw) as DailyQuota;
     if (parsed.date !== todayUtc()) {
@@ -40,7 +42,7 @@ function readQuota(): DailyQuota {
 
 function writeQuota(q: DailyQuota): void {
   if (typeof window === "undefined") return;
-  localStorage.setItem(QUOTA_KEY, JSON.stringify(q));
+  setSlotItem(QUOTA_KEY, JSON.stringify(q));
 }
 
 /**

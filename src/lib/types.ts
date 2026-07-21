@@ -43,6 +43,9 @@ export interface Mission {
   warmupPatterns: GlossItem[];
   states: MissionState[];
   npcPersona: NpcPersona;
+  ruleSupport?: {
+    completion?: { cn: string; vi: string; en: string };
+  };
 }
 
 export interface MissionState {

@@ -18,3 +18,13 @@ Giữ nguyên năng lực của Chinese Mission và bổ sung một lớp học 
 
 - Dữ liệu 20 nhiệm vụ và 6 nhóm tình huống gốc.
 - Hệ thống trạng thái/slot, warmup, chat, hints, debrief, phrasebook, quota, TTS/ASR và mã Capacitor iOS.
+
+## Phiên bản 2.1 — 50 bài và 10 slot học
+- Mở rộng từ 20 lên đúng 50 nhiệm vụ giao tiếp thực tế thuộc 15 nhóm tình huống.
+- Thêm mua sắm, khách sạn, sân bay, tàu cao tốc, y tế, nhà thuốc, SIM/Wi-Fi, giao hàng, sửa chữa, hẹn gặp, báo cáo công việc và tình huống an toàn.
+- Chuẩn hóa toàn bộ cách xưng hô hướng dẫn thành “Bạn”.
+- Thêm 10 slot người học không cần tài khoản hoặc mật khẩu.
+- Mỗi slot lưu độc lập hồ sơ, tiến độ, chuỗi học, sổ câu, cài đặt, lượt miễn phí và phiên hội thoại.
+- Có đổi tên, chuyển slot và đặt lại riêng từng slot.
+- Tự chuyển dữ liệu cũ sang Slot 1 để không mất tiến độ.
+- Rule engine được mở rộng để toàn bộ 50 bài vẫn luyện được khi không cấu hình API AI.

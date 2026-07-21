@@ -14,9 +14,9 @@ export const missionVi: Record<string, { title: string; objective: string }> = {
   m2: { title: "Gọi đồ uống không đá", objective: "Gọi thành công một ly đồ uống không thêm đá." },
   m3: { title: "Yêu cầu thanh toán", objective: "Yêu cầu nhân viên mang hóa đơn và thanh toán." },
   m4: { title: "Gọi món mang đi", objective: "Gọi món và yêu cầu đóng gói mang đi." },
-  m5: { title: "Nói điểm đến với tài xế", objective: "Nói rõ nơi anh muốn đến cho tài xế taxi." },
+  m5: { title: "Nói điểm đến với tài xế", objective: "Nói rõ nơi bạn muốn đến cho tài xế taxi." },
   m6: { title: "Nhờ tài xế chạy chậm lại", objective: "Lịch sự đề nghị tài xế giảm tốc độ." },
-  m7: { title: "Yêu cầu dừng tại đây", objective: "Yêu cầu tài xế dừng đúng vị trí anh cần." },
+  m7: { title: "Yêu cầu dừng tại đây", objective: "Yêu cầu tài xế dừng đúng vị trí bạn cần." },
   m8: { title: "Ga tàu điện ngầm ở đâu?", objective: "Hỏi người đi đường vị trí ga tàu điện ngầm." },
   m9: { title: "Còn bao xa?", objective: "Hỏi khoảng cách và hiểu câu trả lời." },
   m10: { title: "Tôi nên đi hướng nào?", objective: "Hỏi đường và hiểu hướng trái, phải, đi thẳng." },
@@ -39,7 +39,7 @@ const roleVi: Record<string, string> = {
   "New Acquaintance": "Người mới quen", "Chat Partner": "Người trò chuyện cùng", "New Friend": "Người bạn mới",
   "Someone Met at a Party": "Người mới gặp tại buổi tiệc", "Colleague / Friend": "Đồng nghiệp hoặc bạn bè",
   "Language Exchange Partner": "Bạn trao đổi ngôn ngữ", "Chinese Colleague": "Đồng nghiệp người Trung Quốc",
-  "Colleague (More Senior)": "Đồng nghiệp có thâm niên hơn", Colleague: "Đồng nghiệp", "Your Manager": "Quản lý của anh",
+  "Colleague (More Senior)": "Đồng nghiệp có thâm niên hơn", Colleague: "Đồng nghiệp", "Your Manager": "Quản lý của bạn",
 };
 
 const slotVi: Record<string, string> = {
@@ -54,6 +54,20 @@ const slotVi: Record<string, string> = {
   food_preference:"Món muốn ăn",hobby:"Sở thích",other_hobby:"Sở thích của người kia",small_talk:"Câu chuyện xã giao",
   help_request:"Việc cần hỗ trợ",meeting_request:"Đề nghị họp",meeting_time:"Thời gian họp",meeting_location:"Địa điểm hoặc hình thức họp",
   leave_request:"Yêu cầu xin nghỉ",leave_duration:"Thời gian nghỉ",handover:"Bàn giao công việc",
+  price_query:"Hỏi giá sản phẩm",discount_query:"Hỏi ưu đãi hoặc giảm giá",try_on_request:"Yêu cầu thử đồ",size_request:"Kích cỡ cần đổi",
+  receipt_request:"Yêu cầu hóa đơn hoặc biên nhận",return_reason:"Lý do đổi trả",return_request:"Yêu cầu đổi hoặc hoàn tiền",
+  reservation_name:"Tên người đặt phòng",passport:"Hộ chiếu",wifi_query:"Thông tin Wi-Fi",breakfast_query:"Thời gian và địa điểm ăn sáng",
+  room_problem:"Sự cố trong phòng",repair_request:"Yêu cầu kiểm tra hoặc sửa chữa",checkout_request:"Yêu cầu trả phòng",luggage_storage:"Yêu cầu gửi hành lý",
+  flight_info:"Thông tin chuyến bay",baggage_checkin:"Yêu cầu ký gửi hành lý",security_instruction:"Yêu cầu tại cửa an ninh",item_declaration:"Đồ điện tử hoặc chất lỏng mang theo",
+  gate_query:"Vị trí cửa lên máy bay",delay_query:"Tình trạng hoãn chuyến",train_destination:"Điểm đến bằng tàu",travel_date:"Ngày khởi hành",seat_type:"Loại ghế",
+  symptom:"Triệu chứng",symptom_duration:"Thời gian có triệu chứng",medicine_need:"Nhu cầu mua thuốc",dosage_query:"Cách dùng và liều dùng",
+  department_request:"Khoa cần khám",appointment_time:"Thời gian khám",emergency_type:"Tình trạng khẩn cấp",emergency_location:"Vị trí khẩn cấp",ambulance_request:"Yêu cầu xe cứu thương",
+  sim_request:"Yêu cầu mua SIM",data_plan:"Gói dữ liệu",topup_request:"Yêu cầu nạp tiền",balance_query:"Kiểm tra số dư",wifi_password:"Mật khẩu Wi-Fi",connection_problem:"Lỗi kết nối mạng",
+  product_query:"Sản phẩm cần tìm",delivery_address:"Địa chỉ giao hàng",delivery_location:"Vị trí nhận hàng",repair_problem:"Sự cố cần sửa",repair_time:"Thời gian sửa chữa",
+  activity_invitation:"Lời mời hoạt động",activity_time:"Thời gian hẹn",decline_reason:"Lý do từ chối",new_time:"Thời gian thay thế",apology:"Lời xin lỗi",clarification:"Lời giải thích",
+  completed_work:"Phần việc đã hoàn thành",current_issue:"Vấn đề hiện tại",next_step:"Bước tiếp theo",deliverable_query:"Nội dung cần bàn giao",format_query:"Định dạng tệp",priority_query:"Thứ tự ưu tiên",
+  workload_reason:"Lý do về khối lượng công việc",deadline_proposal:"Thời hạn đề xuất",priority_confirmation:"Xác nhận ưu tiên",lost_item:"Đồ vật bị mất",loss_location:"Nơi có thể làm mất",
+  lost_person_description:"Đặc điểm người bị lạc",last_seen_location:"Nơi nhìn thấy lần cuối",contact_request:"Yêu cầu phát thông báo hoặc liên hệ bảo vệ",
 };
 
 const naturalVi: Record<string, string> = {
@@ -76,18 +90,18 @@ const naturalVi: Record<string, string> = {
   "这个我不太懂":"Chỗ này tôi chưa hiểu lắm.","我们约个时间开会吧":"Chúng ta hẹn thời gian họp nhé.","你明天下午有空吗？":"Chiều mai bạn có rảnh không?",
   "大概需要半个小时":"Khoảng nửa giờ.","在会议室还是线上？":"Họp tại phòng họp hay trực tuyến?","我今天身体不舒服，想请个假":"Hôm nay tôi không khỏe, tôi muốn xin nghỉ.",
   "我需要请一天病假":"Tôi cần xin nghỉ bệnh một ngày.","我的工作可以交给小李":"Công việc của tôi có thể bàn giao cho Tiểu Lý.",
-  "你好！欢迎光临！请问你要喝点什么？":"Xin chào! Anh muốn uống gì?","你好！请问你要喝点什么？":"Xin chào! Anh muốn uống gì?",
-  "好的！你要热的还是冰的？":"Được! Anh muốn nóng hay lạnh?","好的！要大杯、中杯还是小杯？":"Được! Anh muốn ly lớn, vừa hay nhỏ?",
-  "好的，你要什么饮料呢？":"Được, anh muốn loại đồ uống nào?","不好意思，请再说一遍？你想喝什么？":"Xin lỗi, anh nói lại được không? Anh muốn uống gì?",
-  "好的，请稍等。你怎么付款？微信、支付宝还是现金？":"Được, vui lòng chờ. Anh thanh toán bằng WeChat, Alipay hay tiền mặt?",
-  "好的！一共二十五块。谢谢！请稍等。":"Tổng cộng 25 tệ. Cảm ơn anh, vui lòng chờ.","你怎么付款？微信、支付宝还是现金？":"Anh thanh toán bằng WeChat, Alipay hay tiền mặt?",
-  "你的饮料好了，请慢用！再见！":"Đồ uống xong rồi, mời anh dùng! Tạm biệt!","不好意思，我没听懂。请再说一遍？":"Xin lỗi, tôi chưa hiểu. Anh nói lại được không?",
-  "你好！请问你去哪里？":"Xin chào! Anh muốn đi đâu?","好的，没问题。大概三十分钟到。":"Được, khoảng 30 phút sẽ đến.","请问你要去哪里？":"Xin hỏi anh muốn đi đâu?",
-  "到了！一共四十五块。谢谢！":"Đến rồi! Tổng cộng 45 tệ. Cảm ơn anh!","不好意思，你说什么？你要去哪里？":"Xin lỗi, anh muốn đi đâu?", "到了！祝你一路顺风！":"Đến rồi! Chúc anh thượng lộ bình an!",
-  "你好，欢迎光临！请问你有预订吗？":"Xin chào! Anh có đặt phòng trước không?","好的，请出示你的护照。":"Vui lòng xuất trình hộ chiếu.","谢谢。你住几晚？":"Cảm ơn. Anh ở mấy đêm?",
-  "请问你的名字是什么？有预订吗？":"Xin hỏi anh tên gì? Anh có đặt trước không?","好的，你的房间号是305。电梯在右边。祝你住得愉快！":"Phòng 305. Thang máy bên phải. Chúc anh ở vui vẻ!",
-  "不好意思，请再说一遍？":"Xin lỗi, anh nói lại được không?","好的，你的房间号是305。祝你住得愉快！":"Phòng của anh là 305. Chúc anh ở vui vẻ!",
-  "你好！有什么可以帮你的？":"Xin chào! Tôi có thể giúp gì cho anh?","好的，没问题！再见！":"Được, không vấn đề! Tạm biệt!","请再说一遍？":"Anh vui lòng nói lại được không?",
+  "你好！欢迎光临！请问你要喝点什么？":"Xin chào! Bạn muốn uống gì?","你好！请问你要喝点什么？":"Xin chào! Bạn muốn uống gì?",
+  "好的！你要热的还是冰的？":"Được! Bạn muốn nóng hay lạnh?","好的！要大杯、中杯还是小杯？":"Được! Bạn muốn ly lớn, vừa hay nhỏ?",
+  "好的，你要什么饮料呢？":"Được, bạn muốn loại đồ uống nào?","不好意思，请再说一遍？你想喝什么？":"Xin lỗi, bạn nói lại được không? Bạn muốn uống gì?",
+  "好的，请稍等。你怎么付款？微信、支付宝还是现金？":"Được, vui lòng chờ. Bạn thanh toán bằng WeChat, Alipay hay tiền mặt?",
+  "好的！一共二十五块。谢谢！请稍等。":"Tổng cộng 25 tệ. Cảm ơn bạn, vui lòng chờ.","你怎么付款？微信、支付宝还是现金？":"Bạn thanh toán bằng WeChat, Alipay hay tiền mặt?",
+  "你的饮料好了，请慢用！再见！":"Đồ uống xong rồi, mời bạn dùng! Tạm biệt!","不好意思，我没听懂。请再说一遍？":"Xin lỗi, tôi chưa hiểu. Bạn nói lại được không?",
+  "你好！请问你去哪里？":"Xin chào! Bạn muốn đi đâu?","好的，没问题。大概三十分钟到。":"Được, khoảng 30 phút sẽ đến.","请问你要去哪里？":"Xin hỏi bạn muốn đi đâu?",
+  "到了！一共四十五块。谢谢！":"Đến rồi! Tổng cộng 45 tệ. Cảm ơn bạn!","不好意思，你说什么？你要去哪里？":"Xin lỗi, bạn muốn đi đâu?", "到了！祝你一路顺风！":"Đến rồi! Chúc bạn thượng lộ bình an!",
+  "你好，欢迎光临！请问你有预订吗？":"Xin chào! Bạn có đặt phòng trước không?","好的，请出示你的护照。":"Vui lòng xuất trình hộ chiếu.","谢谢。你住几晚？":"Cảm ơn. Bạn ở mấy đêm?",
+  "请问你的名字是什么？有预订吗？":"Xin hỏi bạn tên gì? Bạn có đặt trước không?","好的，你的房间号是305。电梯在右边。祝你住得愉快！":"Phòng 305. Thang máy bên phải. Chúc bạn ở vui vẻ!",
+  "不好意思，请再说一遍？":"Xin lỗi, bạn nói lại được không?","好的，你的房间号是305。祝你住得愉快！":"Phòng của bạn là 305. Chúc bạn ở vui vẻ!",
+  "你好！有什么可以帮你的？":"Xin chào! Tôi có thể giúp gì cho bạn?","好的，没问题！再见！":"Được, không vấn đề! Tạm biệt!","请再说一遍？":"Bạn vui lòng nói lại được không?",
 };
 
 const glossVi: Record<string,string> = {
@@ -111,7 +125,7 @@ const glossVi: Record<string,string> = {
 };
 
 const noteVi: Record<string,string> = {
-  "Use when the barista asks about temperature":"Dùng khi nhân viên hỏi anh muốn nóng hay lạnh.","Common shorthand used at drink shops":"Cách nói ngắn thường gặp tại quán đồ uống.",
+  "Use when the barista asks about temperature":"Dùng khi nhân viên hỏi bạn muốn nóng hay lạnh.","Common shorthand used at drink shops":"Cách nói ngắn thường gặp tại quán đồ uống.",
   "WeChat Pay is extremely common in China":"WeChat Pay rất phổ biến tại Trung Quốc.","师傅 (shī fu) is the common way to address a taxi driver":"师傅 (shīfu) là cách xưng hô thông dụng với tài xế.",
   "A-not-A question pattern, very common in spoken Chinese":"Mẫu câu hỏi A-không-A rất phổ biến trong khẩu ngữ.","Casual way to describe your field":"Cách nói thân mật để giới thiệu lĩnh vực nghề nghiệp.",
   "QR code scanning is the most common way to add WeChat contacts":"Quét mã QR là cách phổ biến nhất để thêm WeChat.","Offering to pay is a common social gesture in China":"Chủ động mời trả tiền là phép xã giao thường gặp.",
@@ -119,19 +133,19 @@ const noteVi: Record<string,string> = {
 };
 
 const openingVi: Record<string,string> = {
-  "Hi! What would you like to order?":"Xin chào! Anh muốn gọi món gì?","Welcome! What would you like to drink?":"Chào mừng anh! Anh muốn uống gì?",
-  "Hello, can I help you with anything?":"Xin chào, tôi có thể giúp gì cho anh?","Hi, eating here or takeaway?":"Anh dùng tại chỗ hay mang đi?","Where to?":"Anh đi đâu?",
-  "In a hurry, right? I'll take a shortcut!":"Anh đang vội phải không? Tôi đi đường tắt nhé!","Almost there, right?":"Sắp đến rồi phải không?","Hm? What did you say?":"Hả? Anh vừa nói gì?",
-  "Hi, what place are you looking for?":"Anh đang tìm địa điểm nào?","Are you lost? Where are you going?":"Anh bị lạc à? Anh muốn đi đâu?",
-  "Hello! My name is Xiao Ming. What's your name?":"Xin chào! Tôi tên Tiểu Minh. Anh tên gì?","Where are you from?":"Anh đến từ đâu?","What do you do in China?":"Anh làm công việc gì ở Trung Quốc?",
-  "It's been great chatting with you! By the way...":"Nói chuyện với anh rất vui! À mà…","I've been so busy lately, haven't had a proper meal.":"Dạo này tôi bận quá, chưa có bữa ăn tử tế.",
-  "What do you like to do in your free time?":"Lúc rảnh anh thích làm gì?","Morning!":"Chào buổi sáng!","What's up? What do you need?":"Có chuyện gì vậy? Anh cần gì?",
-  "You're looking for me? What's up?":"Anh tìm tôi à? Có việc gì vậy?","Good morning. What's wrong? You don't look well.":"Chào buổi sáng. Trông anh không khỏe, có chuyện gì vậy?",
+  "Hi! What would you like to order?":"Xin chào! Bạn muốn gọi món gì?","Welcome! What would you like to drink?":"Chào mừng bạn! Bạn muốn uống gì?",
+  "Hello, can I help you with anything?":"Xin chào, tôi có thể giúp gì cho bạn?","Hi, eating here or takeaway?":"Bạn dùng tại chỗ hay mang đi?","Where to?":"Bạn đi đâu?",
+  "In a hurry, right? I'll take a shortcut!":"Bạn đang vội phải không? Tôi đi đường tắt nhé!","Almost there, right?":"Sắp đến rồi phải không?","Hm? What did you say?":"Hả? Bạn vừa nói gì?",
+  "Hi, what place are you looking for?":"Bạn đang tìm địa điểm nào?","Are you lost? Where are you going?":"Bạn bị lạc à? Bạn muốn đi đâu?",
+  "Hello! My name is Xiao Ming. What's your name?":"Xin chào! Tôi tên Tiểu Minh. Bạn tên gì?","Where are you from?":"Bạn đến từ đâu?","What do you do in China?":"Bạn làm công việc gì ở Trung Quốc?",
+  "It's been great chatting with you! By the way...":"Nói chuyện với bạn rất vui! À mà…","I've been so busy lately, haven't had a proper meal.":"Dạo này tôi bận quá, chưa có bữa ăn tử tế.",
+  "What do you like to do in your free time?":"Lúc rảnh bạn thích làm gì?","Morning!":"Chào buổi sáng!","What's up? What do you need?":"Có chuyện gì vậy? Bạn cần gì?",
+  "You're looking for me? What's up?":"Bạn tìm tôi à? Có việc gì vậy?","Good morning. What's wrong? You don't look well.":"Chào buổi sáng. Trông bạn không khỏe, có chuyện gì vậy?",
 };
 
-export const getScenarioNameVi=(s:Pick<Scenario,"id"|"nameEn">)=>scenarioVi[s.id]?.name||s.nameEn;
-export const getMissionTitleVi=(m:Pick<Mission,"id"|"titleEn">)=>missionVi[m.id]?.title||m.titleEn;
-export const getMissionObjectiveVi=(m:Pick<Mission,"id"|"objectiveEn">)=>missionVi[m.id]?.objective||m.objectiveEn;
+export const getScenarioNameVi=(s:Pick<Scenario,"id"|"nameEn"|"nameVi">)=>s.nameVi||scenarioVi[s.id]?.name||s.nameEn;
+export const getMissionTitleVi=(m:Pick<Mission,"id"|"titleEn"|"titleVi">)=>m.titleVi||missionVi[m.id]?.title||m.titleEn;
+export const getMissionObjectiveVi=(m:Pick<Mission,"id"|"objectiveEn"|"objectiveVi">)=>m.objectiveVi||missionVi[m.id]?.objective||m.objectiveEn;
 export const getRoleVi=(m:Pick<Mission,"npcPersona">)=>m.npcPersona.roleVi||roleVi[m.npcPersona.roleEn]||m.npcPersona.roleEn;
 export const getOpeningVi=(m:Pick<Mission,"npcPersona">)=>m.npcPersona.openingLineVi||openingVi[m.npcPersona.openingLineEn]||m.npcPersona.openingLineEn;
 export const getNaturalVi=(g:Pick<GlossItem,"hanzi"|"naturalVi"|"naturalEn">)=>g.naturalVi||naturalVi[g.hanzi]||g.naturalEn;
