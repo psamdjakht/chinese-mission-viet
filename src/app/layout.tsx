@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import CloudSyncProvider from "@/components/CloudSyncProvider";
 
 export const metadata: Metadata = {
   title: "Chinese Mission Việt — Học giao tiếp tiếng Trung",
@@ -13,6 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="vi">
       <body className="antialiased font-sans">
+        <CloudSyncProvider />
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2">Đi đến nội dung chính</a>
         <main id="main-content">{children}</main>
       </body>

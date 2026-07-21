@@ -1,14 +1,19 @@
 "use client";
 import { useState, useCallback, useRef, useEffect } from "react";
 
-/* Web Speech API type shims (not in all TS libs) */
+interface SpeechRecognitionEventShim {
+  results: SpeechRecognitionResultList;
+  resultIndex?: number;
+}
+
 interface SpeechRecognitionShim extends EventTarget {
   lang: string;
   continuous: boolean;
   interimResults: boolean;
+  maxAlternatives?: number;
   onstart: (() => void) | null;
-  onresult: ((event: { results: SpeechRecognitionResultList }) => void) | null;
-  onerror: ((event: { error: string }) => void) | null;
+  onresult: ((event: SpeechRecognitionEventShim) => void) | null;
+  onerror: ((event: { error: string; message?: string }) => void) | null;
   onend: (() => void) | null;
   start(): void;
   stop(): void;
@@ -30,283 +35,327 @@ interface UseVoiceReturn {
   isSpeaking: boolean;
   ttsSupported: boolean;
   ttsEngine: "edge" | "browser" | "none";
-
   startListening: () => Promise<void>;
-  stopListening: () => Promise<void>;
+  stopListening: () => Promise<string>;
   isListening: boolean;
   transcript: string;
   asrSupported: boolean;
   asrEngine: "native" | "browser" | "none";
 }
 
+let activeTtsCancel: (() => void) | null = null;
+
 function isCapacitorNative(): boolean {
   if (typeof window === "undefined") return false;
-  // Capacitor injects this object on native iOS/Android
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const cap = (window as any).Capacitor;
-  if (!cap || typeof cap.isNativePlatform !== "function" || !cap.isNativePlatform()) {
-    return false;
-  }
-  // Plugin must also be actually registered (Capacitor 7 SPM mode may skip CocoaPods-only plugins)
+  if (!cap || typeof cap.isNativePlatform !== "function" || !cap.isNativePlatform()) return false;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const plugins = cap.Plugins || {};
-  return "SpeechRecognition" in plugins;
+  return "SpeechRecognition" in (cap.Plugins || {} as any);
 }
 
 export function useVoice(options: UseVoiceOptions = {}): UseVoiceReturn {
-  const {
-    lang = "zh-CN",
-    rate = 0.9,
-    voice = "female",
-    onResult,
-    onError,
-  } = options;
-
+  const { lang = "zh-CN", rate = 0.9, voice = "female", onResult, onError } = options;
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
 
   const recognitionRef = useRef<SpeechRecognitionShim | null>(null);
+  const latestTranscriptRef = useRef("");
+  const lastDeliveredRef = useRef("");
+  const stopResolverRef = useRef<((text: string) => void) | null>(null);
+  const stopFallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
+  const audioDoneRef = useRef<(() => void) | null>(null);
+  const utteranceDoneRef = useRef<(() => void) | null>(null);
+  const speechRunRef = useRef(0);
+  const ownerRef = useRef<symbol | null>(null);
 
   const browserTtsSupported = typeof window !== "undefined" && "speechSynthesis" in window;
-  // Server TTS always works (network call to /api/tts), so ttsSupported is effectively always true client-side
   const ttsSupported = typeof window !== "undefined";
   const ttsEngine: UseVoiceReturn["ttsEngine"] = ttsSupported ? "edge" : "none";
 
-  // Cleanup audio object URL
+  const settleAudio = useCallback(() => {
+    const done = audioDoneRef.current;
+    audioDoneRef.current = null;
+    done?.();
+  }, []);
+
   const cleanupAudio = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = "";
-      audioRef.current = null;
+    const audio = audioRef.current;
+    audioRef.current = null;
+    if (audio) {
+      audio.onended = null;
+      audio.onerror = null;
+      audio.pause();
+      audio.src = "";
     }
     if (audioUrlRef.current) {
       URL.revokeObjectURL(audioUrlRef.current);
       audioUrlRef.current = null;
     }
+    settleAudio();
+  }, [settleAudio]);
+
+  const settleUtterance = useCallback(() => {
+    const done = utteranceDoneRef.current;
+    utteranceDoneRef.current = null;
+    done?.();
   }, []);
 
-  // Browser TTS fallback
-  const browserSpeak = useCallback(
-    (text: string, overrideLang?: string) => {
-      if (!browserTtsSupported || !text) return;
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = overrideLang || lang;
-      u.rate = rate;
-      const voices = window.speechSynthesis.getVoices();
-      const zh = voices.find((v) => v.lang === "zh-CN") || voices.find((v) => v.lang.startsWith("zh"));
-      if (zh) u.voice = zh;
-      u.onstart = () => setIsSpeaking(true);
-      u.onend = () => setIsSpeaking(false);
-      u.onerror = () => setIsSpeaking(false);
-      window.speechSynthesis.speak(u);
-    },
-    [browserTtsSupported, lang, rate],
-  );
-
-  // Server TTS (Microsoft Edge Neural) with browser fallback
-  const speak = useCallback(
-    async (text: string, overrideLang?: string) => {
-      if (!text || typeof window === "undefined") return;
-      cleanupAudio();
-      setIsSpeaking(true);
-
-      try {
-        const res = await fetch("/api/tts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text, voice, rate }),
-        });
-
-        if (!res.ok) throw new Error(`TTS HTTP ${res.status}`);
-
-        const blob = await res.blob();
-        if (blob.size === 0) throw new Error("Empty audio blob");
-
-        const url = URL.createObjectURL(blob);
-        audioUrlRef.current = url;
-
-        const audio = new Audio(url);
-        audioRef.current = audio;
-        audio.onended = () => {
-          setIsSpeaking(false);
-          cleanupAudio();
-        };
-        audio.onerror = () => {
-          setIsSpeaking(false);
-          cleanupAudio();
-          // Fallback to browser TTS on play error
-          browserSpeak(text, overrideLang);
-        };
-        await audio.play();
-      } catch (err) {
-        console.warn("Edge TTS failed, falling back to browser:", err);
-        cleanupAudio();
-        browserSpeak(text, overrideLang);
-      }
-    },
-    [voice, rate, cleanupAudio, browserSpeak],
-  );
-
-  const stopSpeaking = useCallback(() => {
+  const cancelLocalSpeech = useCallback(() => {
+    speechRunRef.current += 1;
     cleanupAudio();
     if (browserTtsSupported) window.speechSynthesis.cancel();
+    settleUtterance();
     setIsSpeaking(false);
-  }, [browserTtsSupported, cleanupAudio]);
+  }, [browserTtsSupported, cleanupAudio, settleUtterance]);
 
-  // ASR support detection
-  const browserAsrSupported =
-    typeof window !== "undefined" &&
-    ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+  const browserSpeak = useCallback(async (text: string, overrideLang?: string) => {
+    if (!browserTtsSupported || !text) return;
+    await new Promise<void>((resolve) => {
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        utteranceDoneRef.current = null;
+        resolve();
+      };
+      utteranceDoneRef.current = finish;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = overrideLang || lang;
+      utterance.rate = rate;
+      const voices = window.speechSynthesis.getVoices();
+      const chineseVoice = voices.find((item) => item.lang === "zh-CN") || voices.find((item) => item.lang.startsWith("zh"));
+      if (chineseVoice) utterance.voice = chineseVoice;
+      utterance.onend = finish;
+      utterance.onerror = finish;
+      window.speechSynthesis.speak(utterance);
+    });
+  }, [browserTtsSupported, lang, rate]);
+
+  const speak = useCallback(async (text: string, overrideLang?: string) => {
+    if (!text || typeof window === "undefined") return;
+    activeTtsCancel?.();
+    const owner = Symbol("tts");
+    ownerRef.current = owner;
+    const runId = ++speechRunRef.current;
+    const cancel = () => {
+      if (ownerRef.current !== owner) return;
+      cancelLocalSpeech();
+      ownerRef.current = null;
+      if (activeTtsCancel === cancel) activeTtsCancel = null;
+    };
+    activeTtsCancel = cancel;
+    setIsSpeaking(true);
+
+    try {
+      const response = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, voice, rate }),
+      });
+      if (runId !== speechRunRef.current) return;
+      if (!response.ok) throw new Error(`TTS HTTP ${response.status}`);
+      const blob = await response.blob();
+      if (!blob.size) throw new Error("Empty audio blob");
+      const url = URL.createObjectURL(blob);
+      audioUrlRef.current = url;
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      await new Promise<void>((resolve, reject) => {
+        let settled = false;
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          audioDoneRef.current = null;
+          resolve();
+        };
+        audioDoneRef.current = finish;
+        audio.onended = finish;
+        audio.onerror = () => {
+          if (settled) return;
+          settled = true;
+          audioDoneRef.current = null;
+          reject(new Error("Không phát được âm thanh TTS."));
+        };
+        audio.play().catch(reject);
+      });
+    } catch (error) {
+      if (runId !== speechRunRef.current) return;
+      console.warn("Edge TTS failed, falling back to browser:", error);
+      cleanupAudio();
+      await browserSpeak(text, overrideLang);
+    } finally {
+      if (runId === speechRunRef.current) {
+        cleanupAudio();
+        setIsSpeaking(false);
+        ownerRef.current = null;
+        if (activeTtsCancel === cancel) activeTtsCancel = null;
+      }
+    }
+  }, [browserSpeak, cancelLocalSpeech, cleanupAudio, rate, voice]);
+
+  const stopSpeaking = useCallback(() => {
+    if (ownerRef.current && activeTtsCancel) activeTtsCancel();
+    else cancelLocalSpeech();
+  }, [cancelLocalSpeech]);
+
+  const browserAsrSupported = typeof window !== "undefined" && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
   const nativeAsrSupported = isCapacitorNative();
   const asrSupported = browserAsrSupported || nativeAsrSupported;
-  const asrEngine: UseVoiceReturn["asrEngine"] = nativeAsrSupported
-    ? "native"
-    : browserAsrSupported
-      ? "browser"
-      : "none";
+  const asrEngine: UseVoiceReturn["asrEngine"] = nativeAsrSupported ? "native" : browserAsrSupported ? "browser" : "none";
 
-  // Native ASR via @capacitor-community/speech-recognition
+  const publishTranscript = useCallback((text: string) => {
+    const cleaned = text.trim();
+    latestTranscriptRef.current = cleaned;
+    setTranscript(cleaned);
+    if (cleaned && cleaned !== lastDeliveredRef.current) {
+      lastDeliveredRef.current = cleaned;
+      onResult?.(cleaned);
+    }
+  }, [onResult]);
+
+  const finishListening = useCallback((text?: string) => {
+    const finalText = (text || latestTranscriptRef.current).trim();
+    if (stopFallbackTimerRef.current) clearTimeout(stopFallbackTimerRef.current);
+    stopFallbackTimerRef.current = null;
+    recognitionRef.current = null;
+    setIsListening(false);
+    if (finalText) publishTranscript(finalText);
+    const resolver = stopResolverRef.current;
+    stopResolverRef.current = null;
+    resolver?.(finalText);
+    return finalText;
+  }, [publishTranscript]);
+
   const startNativeListening = useCallback(async () => {
     try {
+      activeTtsCancel?.();
       const mod = await import("@capacitor-community/speech-recognition");
       const SpeechRecognition = mod.SpeechRecognition;
-
-      const perm = await SpeechRecognition.checkPermissions();
-      if (perm.speechRecognition !== "granted") {
-        const req = await SpeechRecognition.requestPermissions();
-        if (req.speechRecognition !== "granted") {
-          onError?.("Speech recognition permission denied");
-          return;
-        }
+      const permission = await SpeechRecognition.checkPermissions();
+      if (permission.speechRecognition !== "granted") {
+        const requested = await SpeechRecognition.requestPermissions();
+        if (requested.speechRecognition !== "granted") throw new Error("Bạn chưa cấp quyền sử dụng micro.");
       }
-
+      latestTranscriptRef.current = "";
+      lastDeliveredRef.current = "";
       setTranscript("");
       setIsListening(true);
-
-      // Listen for partial results stream
-      SpeechRecognition.addListener("partialResults", (data: { matches?: string[] }) => {
-        if (data.matches?.[0]) setTranscript(data.matches[0]);
+      await SpeechRecognition.removeAllListeners();
+      await SpeechRecognition.addListener("partialResults", (data: { matches?: string[] }) => {
+        const text = data.matches?.[0]?.trim() || "";
+        if (text) {
+          latestTranscriptRef.current = text;
+          setTranscript(text);
+        }
       });
-
-      const result = await SpeechRecognition.start({
-        language: lang,
-        maxResults: 1,
-        prompt: "请说中文",
-        partialResults: true,
-        popup: false,
-      });
-
-      // result on iOS contains final matches
-      const finalText = result?.matches?.[0] || "";
-      if (finalText) {
-        setTranscript(finalText);
-        onResult?.(finalText);
-      }
+      const result = await SpeechRecognition.start({ language: lang, maxResults: 3, prompt: "请说中文", partialResults: true, popup: false });
+      finishListening(result?.matches?.[0] || latestTranscriptRef.current);
+    } catch (error) {
       setIsListening(false);
-    } catch (err) {
-      console.warn("Native ASR error:", err);
-      onError?.(err instanceof Error ? err.message : String(err));
-      setIsListening(false);
+      const message = error instanceof Error ? error.message : String(error);
+      onError?.(message);
     }
-  }, [lang, onResult, onError]);
+  }, [finishListening, lang, onError]);
 
   const stopNativeListening = useCallback(async () => {
     try {
       const mod = await import("@capacitor-community/speech-recognition");
       await mod.SpeechRecognition.stop();
-    } catch (err) {
-      console.warn("Native ASR stop error:", err);
+    } catch (error) {
+      console.warn("Native ASR stop error:", error);
     }
-    setIsListening(false);
-  }, []);
+    return finishListening();
+  }, [finishListening]);
 
-  // Browser ASR (Web Speech)
-  const startBrowserListening = useCallback(() => {
+  const startBrowserListening = useCallback(async () => {
+    activeTtsCancel?.();
     if (recognitionRef.current) recognitionRef.current.abort();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const w = window as any;
-    const SpeechRecognitionAPI = w.SpeechRecognition || w.webkitSpeechRecognition;
-    if (!SpeechRecognitionAPI) {
-      onError?.("Speech recognition is not supported");
-      return;
-    }
+    const browserWindow = window as any;
+    const SpeechRecognitionAPI = browserWindow.SpeechRecognition || browserWindow.webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) throw new Error("Trình duyệt chưa hỗ trợ nhận giọng nói.");
+
+    latestTranscriptRef.current = "";
+    lastDeliveredRef.current = "";
+    setTranscript("");
     const recognition: SpeechRecognitionShim = new SpeechRecognitionAPI();
     recognition.lang = lang;
-    recognition.continuous = true;
+    recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.onstart = () => {
-      setIsListening(true);
-      setTranscript("");
-    };
-    recognition.onresult = (event: { results: SpeechRecognitionResultList }) => {
-      let interim = "";
+    recognition.maxAlternatives = 3;
+    recognition.onstart = () => setIsListening(true);
+    recognition.onresult = (event) => {
       let finalText = "";
-      for (let i = 0; i < event.results.length; i++) {
-        const r = event.results[i];
-        if (r.isFinal) finalText += r[0].transcript;
-        else interim += r[0].transcript;
+      let interimText = "";
+      const startIndex = event.resultIndex || 0;
+      for (let index = startIndex; index < event.results.length; index += 1) {
+        const result = event.results[index];
+        const text = result[0]?.transcript || "";
+        if (result.isFinal) finalText += text;
+        else interimText += text;
       }
-      const current = finalText || interim;
-      setTranscript(current);
-      if (finalText) onResult?.(finalText);
+      const current = (finalText || interimText).trim();
+      if (current) {
+        latestTranscriptRef.current = current;
+        setTranscript(current);
+      }
+      if (finalText.trim()) publishTranscript(finalText);
     };
-    recognition.onerror = (event: { error: string }) => {
-      if (event.error !== "aborted") onError?.(event.error);
-      setIsListening(false);
+    recognition.onerror = (event) => {
+      const ignored = event.error === "aborted";
+      if (!ignored) onError?.(event.error || event.message || "Không nhận được giọng nói.");
+      finishListening();
     };
-    recognition.onend = () => setIsListening(false);
+    recognition.onend = () => finishListening();
     recognitionRef.current = recognition;
-    recognition.start();
-  }, [lang, onResult, onError]);
-
-  const stopBrowserListening = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
+    try {
+      recognition.start();
+    } catch (error) {
       recognitionRef.current = null;
+      setIsListening(false);
+      throw error;
     }
-    setIsListening(false);
-  }, []);
+  }, [finishListening, lang, onError, publishTranscript]);
+
+  const stopBrowserListening = useCallback(async () => {
+    const recognition = recognitionRef.current;
+    if (!recognition) return finishListening();
+    return await new Promise<string>((resolve) => {
+      stopResolverRef.current = resolve;
+      stopFallbackTimerRef.current = setTimeout(() => resolve(finishListening()), 1600);
+      try {
+        recognition.stop();
+      } catch {
+        resolve(finishListening());
+      }
+    });
+  }, [finishListening]);
 
   const startListening = useCallback(async () => {
-    if (nativeAsrSupported) await startNativeListening();
-    else if (browserAsrSupported) startBrowserListening();
-    else onError?.("Speech recognition not available");
-  }, [nativeAsrSupported, browserAsrSupported, startNativeListening, startBrowserListening, onError]);
+    try {
+      if (nativeAsrSupported) await startNativeListening();
+      else if (browserAsrSupported) await startBrowserListening();
+      else throw new Error("Thiết bị hoặc trình duyệt chưa hỗ trợ nhận giọng nói.");
+    } catch (error) {
+      setIsListening(false);
+      onError?.(error instanceof Error ? error.message : String(error));
+    }
+  }, [browserAsrSupported, nativeAsrSupported, onError, startBrowserListening, startNativeListening]);
 
   const stopListening = useCallback(async () => {
-    if (nativeAsrSupported) await stopNativeListening();
-    else stopBrowserListening();
-  }, [nativeAsrSupported, stopNativeListening, stopBrowserListening]);
+    return nativeAsrSupported ? await stopNativeListening() : await stopBrowserListening();
+  }, [nativeAsrSupported, stopBrowserListening, stopNativeListening]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      cleanupAudio();
-      if (recognitionRef.current) {
-        recognitionRef.current.abort();
-        recognitionRef.current = null;
-      }
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, [cleanupAudio]);
+  useEffect(() => () => {
+    cancelLocalSpeech();
+    if (recognitionRef.current) recognitionRef.current.abort();
+    if (stopFallbackTimerRef.current) clearTimeout(stopFallbackTimerRef.current);
+  }, [cancelLocalSpeech]);
 
-  return {
-    speak,
-    stopSpeaking,
-    isSpeaking,
-    ttsSupported,
-    ttsEngine,
-    startListening,
-    stopListening,
-    isListening,
-    transcript,
-    asrSupported,
-    asrEngine,
-  };
+  return { speak, stopSpeaking, isSpeaking, ttsSupported, ttsEngine, startListening, stopListening, isListening, transcript, asrSupported, asrEngine };
 }

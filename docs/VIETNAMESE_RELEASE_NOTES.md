@@ -28,3 +28,11 @@ Giữ nguyên năng lực của Chinese Mission và bổ sung một lớp học 
 - Có đổi tên, chuyển slot và đặt lại riêng từng slot.
 - Tự chuyển dữ liệu cũ sang Slot 1 để không mất tiến độ.
 - Rule engine được mở rộng để toàn bộ 50 bài vẫn luyện được khi không cấu hình API AI.
+
+## Phiên bản 2.2.0 — Âm thanh, micro và tự động đồng bộ
+- Sửa lặp phát âm: mỗi lần đọc được chờ đến khi audio kết thúc, nghỉ 450 ms rồi mới đọc lần tiếp theo; có nút dừng và chỉ báo lần đang phát.
+- Sửa nhận giọng nói tiếng Trung: bấm một lần để bắt đầu, bấm lại để dừng; chờ kết quả cuối từ trình duyệt trước khi điền vào ô nhập.
+- Câu nhận dạng được đưa vào ô soạn thảo để người học kiểm tra rồi bấm Gửi, tránh nút Gửi bị mờ do kết quả đến trễ.
+- Hiển thị lỗi micro bằng tiếng Việt và hướng dẫn dùng Chrome/Edge khi trình duyệt không hỗ trợ.
+- Thêm CloudSyncProvider: sau khi đăng nhập Supabase bằng liên kết email một lần, dữ liệu cả 10 slot tự lưu sau mỗi thay đổi và tự khôi phục bản mới hơn khi mở lại.
+- Cơ chế đồng bộ dùng mốc thời gian và ưu tiên bản mới hơn; vẫn giữ nút Lưu ngay/Khôi phục thủ công.

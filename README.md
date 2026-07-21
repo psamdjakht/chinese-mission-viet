@@ -120,3 +120,12 @@ npx cap sync ios
 3. Không đưa `node_modules` hoặc `.next` lên GitHub.
 4. Mở GitHub Desktop, kiểm tra danh sách thay đổi, ghi commit `Nâng cấp 2.1 - 50 bài và 10 slot` rồi bấm **Push origin**.
 5. Vercel sẽ tự triển khai commit mới. Nếu không tự chạy, chọn **Redeploy** và bỏ dùng build cache cũ.
+
+## Tự động lưu tiến độ Supabase (2.2)
+1. Chạy `supabase/schema.sql` trong Supabase SQL Editor.
+2. Trong Vercel thêm `NEXT_PUBLIC_SUPABASE_URL` và `NEXT_PUBLIC_SUPABASE_ANON_KEY`, sau đó Redeploy.
+3. Mở `/cloud`, nhập email và bấm liên kết Supabase gửi đến. Không cần mật khẩu.
+4. Từ thời điểm đăng nhập, mọi thay đổi của cả 10 slot được tự lưu sau khoảng 1–2 giây. Khi mở lại hoặc đăng nhập trên thiết bị khác, ứng dụng so sánh thời gian và tự tải bản mới hơn.
+5. Không dùng `service_role` key trong Vercel hoặc mã phía trình duyệt.
+
+Nhận giọng nói trên web hoạt động tốt nhất bằng Chrome hoặc Edge qua HTTPS. Bấm micro một lần để bắt đầu, nói tiếng Trung, rồi bấm lại để kết thúc. Câu nhận dạng sẽ điền vào ô nhập để kiểm tra trước khi bấm Gửi.

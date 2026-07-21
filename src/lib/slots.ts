@@ -1,4 +1,5 @@
 "use client";
+import { markLocalDataChanged } from "@/lib/data-events";
 
 export const SLOT_COUNT = 10;
 const SLOT_REGISTRY_KEY = "chinese-mission-slots";
@@ -94,6 +95,7 @@ export function saveLearnerSlotName(slotId: string, name: string): LearnerSlot[]
       : slot,
   );
   localStorage.setItem(SLOT_REGISTRY_KEY, JSON.stringify(slots));
+  markLocalDataChanged();
   window.dispatchEvent(new CustomEvent("cm-slots-changed", { detail: slots }));
   return slots;
 }
@@ -111,12 +113,14 @@ export function setActiveSlotId(slotId: string): void {
   const slot = getLearnerSlots().find((item) => item.id === slotId);
   if (!slot?.name) throw new Error("Vui lòng đặt tên cho slot học trước.");
   localStorage.setItem(ACTIVE_SLOT_KEY, slotId);
+  markLocalDataChanged();
   window.dispatchEvent(new CustomEvent("cm-active-slot-changed", { detail: slotId }));
 }
 
 export function clearActiveSlot(): void {
   if (!safeWindow()) return;
   localStorage.removeItem(ACTIVE_SLOT_KEY);
+  markLocalDataChanged();
 }
 
 export function getActiveSlot(): LearnerSlot | null {
@@ -142,12 +146,14 @@ export function getSlotItem(baseKey: string, slotId?: string | null): string | n
 export function setSlotItem(baseKey: string, value: string, slotId?: string | null): void {
   if (!safeWindow()) return;
   localStorage.setItem(slotStorageKey(baseKey, slotId), value);
+  markLocalDataChanged();
 }
 
 export function removeSlotItem(baseKey: string, slotId?: string | null): void {
   if (!safeWindow()) return;
   try {
     localStorage.removeItem(slotStorageKey(baseKey, slotId));
+    markLocalDataChanged();
   } catch {}
 }
 
@@ -181,6 +187,7 @@ export function resetLearnerSlot(slotId: string): void {
   );
   localStorage.setItem(SLOT_REGISTRY_KEY, JSON.stringify(slots));
   if (localStorage.getItem(ACTIVE_SLOT_KEY) === slotId) localStorage.removeItem(ACTIVE_SLOT_KEY);
+  markLocalDataChanged();
   window.dispatchEvent(new CustomEvent("cm-slots-changed", { detail: slots }));
 }
 
